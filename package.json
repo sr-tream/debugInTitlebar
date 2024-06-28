@@ -43,6 +43,21 @@
 					"type": "boolean",
 					"default": false,
 					"description": "Prevents the debug start icon from showing when the debugger is not running. The rest of the controls will show when a debugger is started from another avenue."
+				},
+				"debugControlsInTitlebar.selectConfigurationBeforeRun": {
+					"type": "string",
+					"enum": [
+						"never",
+						"always",
+						"button"
+					],
+					"enumDescriptions": [
+						"Never",
+						"Always",
+						"Show additional button to select configuration"
+					],
+					"default": "never",
+					"description": "Select a configuration before starting a debugger."
 				}
 			}
 		},
@@ -61,6 +76,12 @@
 				"command": "debug-in-titlebar.debug-start",
 				"title": "Start Debug",
 				"icon": "$(debug-start)",
+				"enablement": "debugState != 'initializing'"
+			},
+			{
+				"command": "debug-in-titlebar.debug-select",
+				"title": "Select configuration and start",
+				"icon": "$(debug-line-by-line)",
 				"enablement": "debugState != 'initializing'"
 			},
 			{
@@ -105,6 +126,11 @@
 					"group": "navigation@1999901",
 					"when": "debuggersAvailable && !config.debugControlsInTitlebar.hideDebugStart && !inDebugMode || debugState == 'initializing'"
 
+				},
+				{
+					"command": "debug-in-titlebar.debug-select",
+					"group": "navigation@1999901",
+					"when": "debuggersAvailable && !config.debugControlsInTitlebar.hideDebugStart && config.debugControlsInTitlebar.selectConfigurationBeforeRun === 'button' && !inDebugMode || debugState == 'initializing'"
 				},
 				{
 					"command": "debug-in-titlebar.debug-pause",

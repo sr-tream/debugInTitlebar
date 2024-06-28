@@ -18,7 +18,18 @@ export function activate(context: vscode.ExtensionContext) {
 	let debugStart = vscode.commands.registerCommand(
 		`debug-in-titlebar.debug-start`,
 		() => {
+			let config = vscode.workspace.getConfiguration('debugControlsInTitlebar');
+			if (config.get('selectConfigurationBeforeRun') === 'always') {
+				vscode.commands.executeCommand("workbench.action.debug.selectandstart");
+				return;
+			}
 			vscode.commands.executeCommand("workbench.action.debug.start");
+		}
+	);
+	let debugSelect = vscode.commands.registerCommand(
+		`debug-in-titlebar.debug-select`,
+		() => {
+			vscode.commands.executeCommand("workbench.action.debug.selectandstart");
 		}
 	);
 	let debugStop = vscode.commands.registerCommand(
@@ -70,6 +81,7 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(
 		debugRestart,
 		debugStart,
+		debugSelect,
 		debugStop,
 		debugContinue,
 		debugStepInto,
