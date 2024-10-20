@@ -53,7 +53,12 @@ export function activate(context: vscode.ExtensionContext) {
 	let debugStop = vscode.commands.registerCommand(
 		`debug-in-titlebar.debug-stop`,
 		() => {
-			vscode.commands.executeCommand("workbench.action.debug.stop");
+			let session = vscode.debug.activeDebugSession;
+			if (session) {
+				while (session.parentSession !== undefined)
+					session = session.parentSession;
+				vscode.debug.stopDebugging(session);
+			}
 		}
 	);
 	let debugContinue = vscode.commands.registerCommand(
