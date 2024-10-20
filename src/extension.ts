@@ -1,7 +1,24 @@
 import * as vscode from "vscode";
+
+import { CMakeToolsIntegration } from "./cmake";
+
 var breakpointtoggle = true;
+var presetChanged = false;
+
 export function activate(context: vscode.ExtensionContext) {
 	// idea: hide the debug/toolbar ?
+
+	if (vscode.extensions.getExtension('ms-vscode.cmake-tools') !== undefined) {
+		let cmake = new CMakeToolsIntegration();
+		let configChanged = cmake.onConfigurationChanged(() => presetChanged = true);
+		let debugStarted = vscode.debug.onDidStartDebugSession(() => presetChanged = false);
+
+		context.subscriptions.push(
+			debugStarted,
+			configChanged,
+			cmake
+		);
+	}
 
 	let debugRestart = vscode.commands.registerCommand(
 		`debug-in-titlebar.debug-restart`,
@@ -19,7 +36,8 @@ export function activate(context: vscode.ExtensionContext) {
 		`debug-in-titlebar.debug-start`,
 		() => {
 			let config = vscode.workspace.getConfiguration('debugControlsInTitlebar');
-			if (config.get('selectConfigurationBeforeRun') === 'always') {
+			const forceSelect = config.get<boolean>('selectOnCmakeCodeModelChanged', false) && presetChanged;
+			if (config.get('selectConfigurationBeforeRun') === 'always' || forceSelect) {
 				vscode.commands.executeCommand("workbench.action.debug.selectandstart");
 				return;
 			}
